@@ -137,6 +137,7 @@ let handlePostback = (sender_psid, received_postback) => {
 
     }else if(payload === "CARE_HELP"){
         response = {"text": "You turn off the bot. Someone real will be with you in a few minute."};
+        homepageService.passThreadControl(sender_psid);
     }
     // Send the message to acknowledge the postback
     callSendAPI(sender_psid, response);
