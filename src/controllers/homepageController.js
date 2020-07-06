@@ -1,5 +1,6 @@
 require("dotenv").config();
 import request from "request";
+import homepageService from "../services/homepageService";
 
 const MY_VERIFY_TOKEN = process.env.MY_VERIFY_TOKEN;
 const PAGE_ACCESS_TOKEN = process.env.PAGE_ACCESS_TOKEN;
@@ -131,6 +132,11 @@ let handlePostback = (sender_psid, received_postback) => {
         response = { "text": "Thanks!" }
     } else if (payload === 'no') {
         response = { "text": "Oops, try sending another image." }
+    } else if(payload === "GET_STARTED"){
+        response = {"text": "Hi. I'm a chatbot. How can I help you?"}
+
+    }else if(payload === "CARE_HELP"){
+        response = {"text": "You turn off the bot. Someone real will be with you in a few minute."};
     }
     // Send the message to acknowledge the postback
     callSendAPI(sender_psid, response);
@@ -160,8 +166,19 @@ let callSendAPI = (sender_psid, response) => {
         }
     });
 };
+
+let setUpPersistentMenu = async (req, res) =>{
+    try{
+        await homepageService.setUpPersistentMenuService();
+        return res.redirect("/");
+    }catch (e) {
+        console.log(e);
+    }
+};
+
 module.exports = {
     getHomepage: getHomepage,
     getWebhook: getWebhook,
-    postWebhook: postWebhook
+    postWebhook: postWebhook,
+    setUpPersistentMenu: setUpPersistentMenu
 };
