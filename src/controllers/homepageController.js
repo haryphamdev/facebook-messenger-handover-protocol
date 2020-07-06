@@ -45,6 +45,19 @@ let postWebhook = (req, res) => {
 
         // Iterate over each entry - there may be multiple if batched
         body.entry.forEach(function(entry) {
+            // check the incoming message, standby event. if the conversation belong to page inbox, return.
+            if (entry.standby) {
+                let webhook_standby = entry.standby[0];
+                if(webhook_standby && webhook_standby.message){
+                    if (webhook_standby.message.text === "back" || webhook_standby.message.text === "exit") {
+                        //if user's message is "back" or "exit", return the conversation to the bot
+                        homepageService.takeControlConversation(webhook_standby.sender.id);
+                    }
+                }
+
+                return;
+            }
+
 
             // Gets the body of the webhook event
             let webhook_event = entry.messaging[0];
@@ -137,6 +150,7 @@ let handlePostback = (sender_psid, received_postback) => {
 
     }else if(payload === "CARE_HELP"){
         response = {"text": "You turn off the bot. Someone real will be with you in a few minute."};
+        // pass thread control to page inbox. turn off the bot
         homepageService.passThreadControl(sender_psid);
     }
     // Send the message to acknowledge the postback
